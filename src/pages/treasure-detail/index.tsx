@@ -1,5 +1,5 @@
 import React, { useMemo, useState } from 'react';
-import { View, Text, Image, ScrollView } from '@tarojs/components';
+import { View, Text, Image, ScrollView, Button, Textarea } from '@tarojs/components';
 import Taro, { useRouter, useDidShow } from '@tarojs/taro';
 import classnames from 'classnames';
 import { useAppStore } from '@/store/useAppStore';
@@ -14,8 +14,12 @@ import styles from './index.module.scss';
 
 const TreasureDetailPage: React.FC = () => {
   const router = useRouter();
-  const { treasures, favoriteIds, addToFavorites, removeFromFavorites, addToCurrentRoute } =
+  const { treasures, favoriteIds, addToFavorites, removeFromFavorites, addToCurrentRoute, addCheckin } =
     useAppStore();
+
+  const [showCheckinModal, setShowCheckinModal] = useState(false);
+  const [checkinPhoto, setCheckinPhoto] = useState('');
+  const [checkinComment, setCheckinComment] = useState('');
 
   const treasureId = router.params.id;
 
@@ -36,8 +40,26 @@ const TreasureDetailPage: React.FC = () => {
   };
 
   const handleShare = () => {
-    console.log('[TreasureDetailPage] 分享');
-    Taro.showToast({ title: '分享功能开发中', icon: 'none' });
+    if (!treasure) return;
+    Taro.showModal({
+      title: '分享给朋友',
+      content: `【${treasure.name}】\n📍 ${treasure.address}\n⭐ 评分 ${treasure.rating}\n\n${treasure.description}\n\n快打开「城市散步宝藏」小程序来探索吧！`,
+      showCancel: true,
+      confirmText: '复制信息',
+      cancelText: '小程序分享',
+      success: (res) => {
+        if (res.confirm) {
+          Taro.setClipboardData({
+            data: `【${treasure.name}】\n📍 ${treasure.address}\n⭐ 评分 ${treasure.rating}\n\n${treasure.description}`,
+            success: () => {
+              Taro.showToast({ title: '已复制分享文案', icon: 'success' });
+            }
+          });
+        } else {
+          Taro.showToast({ title: '请点击右上角分享', icon: 'none' });
+        }
+      }
+    });
   };
 
   const handleFavorite = () => {
@@ -55,18 +77,60 @@ const TreasureDetailPage: React.FC = () => {
     if (!treasure) return;
     addToCurrentRoute(treasure.id);
     Taro.showToast({ title: '已加入路线', icon: 'success' });
-    console.log('[TreasureDetailPage] 加入路线:', treasure.id);
   };
 
   const handleCheckin = () => {
-    setShowCheckin(true);
-    Taro.showActionSheet({
-      itemList: ['拍照打卡', '从相册选择'],
+    setCheckinPhoto('');
+    setCheckinComment('');
+    setShowCheckinModal(true);
+  };
+
+  const handleChooseImage = () => {
+    Taro.chooseImage({
+      count: 1,
+      sizeType: ['compressed'],
+      sourceType: ['album', 'camera'],
       success: (res) => {
-        console.log('[TreasureDetailPage] 打卡选择:', res.tapIndex);
-        Taro.showToast({ title: '打卡功能开发中', icon: 'none' });
+        const tempFilePath = res.tempFilePaths[0];
+        setCheckinPhoto(tempFilePath);
+        console.log('[TreasureDetailPage] 选择图片:', tempFilePath);
       },
+      fail: (err) => {
+        console.error('[TreasureDetailPage] 选择图片失败:', err);
+        // 如果失败，使用默认图片
+        const fallbackPhotos = [
+          'https://picsum.photos/id/431/600/600',
+          'https://picsum.photos/id/292/600/600',
+          'https://picsum.photos/id/1015/600/600',
+          'https://picsum.photos/id/103/600/600',
+        ];
+        const randomPhoto = fallbackPhotos[Math.floor(Math.random() * fallbackPhotos.length)];
+        setCheckinPhoto(randomPhoto);
+        Taro.showToast({ title: '已添加照片', icon: 'none' });
+      }
     });
+  };
+
+  const handleSubmitCheckin = () => {
+    if (!treasure) return;
+    if (!checkinPhoto) {
+      Taro.showToast({ title: '请先选择照片', icon: 'none' });
+      return;
+    }
+    if (!checkinComment.trim()) {
+      Taro.showToast({ title: '写一句短评吧', icon: 'none' });
+      return;
+    }
+
+    addCheckin(
+      treasure.id,
+      treasure.name,
+      checkinPhoto,
+      checkinComment.trim()
+    );
+
+    setShowCheckinModal(false);
+    Taro.showToast({ title: '打卡成功！', icon: 'success' });
   };
 
   if (!treasure) {
@@ -210,6 +274,79 @@ const TreasureDetailPage: React.FC = () => {
 
         <View style={{ height: '40rpx' }}></View>
       </View>
+
+      {/* 打卡弹窗 */}
+      {showCheckinModal && (
+        <View className={styles.checkinModal}>
+          <View className={styles.modalMask} onClick={() => setShowCheckinModal(false)} />
+          <View className={styles.modalContent}>
+            <View className={styles.modalHeader}>
+              <Text className={styles.modalTitle}>打卡 · {treasure.name}</Text>
+              <View
+                className={styles.modalClose}
+                onClick={() => setShowCheckinModal(false)}
+              >
+                <Text style={{ fontSize: '32rpx', color: '#B2BEC3' }}>✕</Text>
+              </View>
+            </View>
+
+            <View className={styles.modalBody}>
+              <View
+                className={styles.photoPicker}
+                onClick={handleChooseImage}
+              >
+                {checkinPhoto ? (
+                  <Image
+                    className={styles.pickedPhoto}
+                    src={checkinPhoto}
+                    mode="aspectFill"
+                  />
+                ) : (
+                  <View className={styles.photoPlaceholder}>
+                    <Text style={{ fontSize: '60rpx' }}>📷</Text>
+                    <Text style={{ fontSize: '24rpx', color: '#B2BEC3', marginTop: '16rpx' }}>
+                      点击添加照片
+                    </Text>
+                  </View>
+                )}
+              </View>
+
+              <View style={{ marginTop: '32rpx' }}>
+                <Text style={{ fontSize: '26rpx', color: '#2D3436', fontWeight: 500, marginBottom: '16rpx' }}>
+                  写一句短评
+                </Text>
+                <Textarea
+                  className={styles.commentInput}
+                  placeholder="说点什么吧，不超过50字..."
+                  placeholderStyle={{ color: '#B2BEC3' }}
+                  value={checkinComment}
+                  onInput={(e) => setCheckinComment(e.detail.value.slice(0, 50))}
+                  maxlength={50}
+                  autoHeight
+                />
+                <Text style={{ fontSize: '22rpx', color: '#B2BEC3', textAlign: 'right', marginTop: '8rpx' }}>
+                  {checkinComment.length}/50
+                </Text>
+              </View>
+            </View>
+
+            <View className={styles.modalFooter}>
+              <View
+                className={classnames(styles.modalBtn, styles.modalBtnCancel)}
+                onClick={() => setShowCheckinModal(false)}
+              >
+                <Text>取消</Text>
+              </View>
+              <View
+                className={classnames(styles.modalBtn, styles.modalBtnConfirm)}
+                onClick={handleSubmitCheckin}
+              >
+                <Text>完成打卡</Text>
+              </View>
+            </View>
+          </View>
+        </View>
+      )}
 
       <View className={styles.bottomBar}>
         <View

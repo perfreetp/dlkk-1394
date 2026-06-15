@@ -23,7 +23,9 @@ const RoutesPage: React.FC = () => {
 
   const handleRouteClick = (routeId: string) => {
     console.log('[RoutesPage] 点击路线:', routeId);
-    Taro.showToast({ title: '路线详情开发中', icon: 'none' });
+    Taro.navigateTo({
+      url: `/pages/route-detail/index?id=${routeId}`,
+    });
   };
 
   const handleCreateRoute = () => {

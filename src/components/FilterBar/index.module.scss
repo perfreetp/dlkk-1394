@@ -9,12 +9,12 @@
 .categoryScroll {
   @include scroll-x-container;
   padding: 0 $page-padding;
-  margin-bottom: $spacing-md;
+  margin-bottom: $spacing-sm;
 }
 
 .categoryList {
   display: inline-flex;
-  gap: $spacing-md;
+  gap: $spacing-sm;
 }
 
 .categoryItem {
@@ -26,6 +26,7 @@
   background-color: $color-bg-page;
   border-radius: $radius-md;
   transition: all $transition-base;
+  min-width: 120rpx;
 
   &.categoryActive {
     background-color: rgba(255, 125, 74, 0.1);
@@ -52,10 +53,54 @@
   white-space: nowrap;
 }
 
+.optionScroll {
+  @include scroll-x-container;
+  padding: 0 $page-padding;
+  margin-bottom: $spacing-sm;
+}
+
+.optionRow {
+  display: inline-flex;
+  gap: $spacing-sm;
+}
+
+.optionTag {
+  @include scroll-x-item(auto);
+  display: inline-flex;
+  align-items: center;
+  padding: $spacing-xs $spacing-md;
+  background-color: $color-bg-page;
+  border-radius: $radius-round;
+  border: 1rpx solid transparent;
+  transition: all $transition-base;
+  white-space: nowrap;
+
+  &.optionActive {
+    background-color: rgba(46, 196, 182, 0.1);
+    border-color: $color-secondary;
+
+    .optionText {
+      color: $color-secondary;
+      font-weight: $font-weight-medium;
+    }
+  }
+
+  &:active {
+    transform: scale(0.95);
+  }
+}
+
+.optionText {
+  font-size: $font-size-xs;
+  color: $color-text-secondary;
+  white-space: nowrap;
+}
+
 .filterTags {
   display: flex;
   gap: $spacing-sm;
   padding: 0 $page-padding;
+  margin-top: $spacing-xs;
 }
 
 .filterTag {

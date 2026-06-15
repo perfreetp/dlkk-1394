@@ -4,7 +4,7 @@ import Taro, { useDidShow } from '@tarojs/taro';
 import { TreasureCategory } from '@/types/treasure';
 import { useAppStore } from '@/store/useAppStore';
 import TreasureCard from '@/components/TreasureCard';
-import FilterBar from '@/components/FilterBar';
+import FilterBar, { WalkTimeOption, BudgetOption } from '@/components/FilterBar';
 import { formatDistance } from '@/utils';
 import styles from './index.module.scss';
 
@@ -14,6 +14,8 @@ const HomePage: React.FC = () => {
   const [activeCategory, setActiveCategory] = useState<TreasureCategory | 'all'>('all');
   const [rainyActive, setRainyActive] = useState(false);
   const [familyActive, setFamilyActive] = useState(false);
+  const [walkTimeActive, setWalkTimeActive] = useState<WalkTimeOption>('all');
+  const [budgetActive, setBudgetActive] = useState<BudgetOption>('all');
 
   useDidShow(() => {
     console.log('[HomePage] 页面显示');
@@ -48,8 +50,18 @@ const HomePage: React.FC = () => {
       result = result.filter((t) => t.isFamilyFriendly);
     }
 
+    if (walkTimeActive !== 'all') {
+      const maxTime = parseInt(walkTimeActive, 10);
+      result = result.filter((t) => t.walkTime <= maxTime);
+    }
+
+    if (budgetActive !== 'all') {
+      const maxBudget = parseInt(budgetActive, 10);
+      result = result.filter((t) => t.budget <= maxBudget);
+    }
+
     return result;
-  }, [treasures, searchText, activeCategory, rainyActive, familyActive]);
+  }, [treasures, searchText, activeCategory, rainyActive, familyActive, walkTimeActive, budgetActive]);
 
   const handleFavorite = useCallback(
     (id: string) => {
@@ -142,8 +154,12 @@ const HomePage: React.FC = () => {
           onCategoryChange={setActiveCategory}
           rainyActive={rainyActive}
           familyActive={familyActive}
+          walkTimeActive={walkTimeActive}
+          budgetActive={budgetActive}
           onRainyChange={setRainyActive}
           onFamilyChange={setFamilyActive}
+          onWalkTimeChange={setWalkTimeActive}
+          onBudgetChange={setBudgetActive}
         />
       </View>
 
@@ -167,7 +183,7 @@ const HomePage: React.FC = () => {
           />
         ))}
         {filteredTreasures.length === 0 && (
-          <View className={styles.loading}>没有找到相关宝藏，换个关键词试试~</View>
+          <View className={styles.loading}>没有找到相关宝藏，换个筛选条件试试~</View>
         )}
       </View>
     </ScrollView>

@@ -6,6 +6,8 @@ export default defineAppConfig({
     'pages/mine/index',
     'pages/treasure-detail/index',
     'pages/route-edit/index',
+    'pages/route-detail/index',
+    'pages/feedback/index',
   ],
   window: {
     backgroundTextStyle: 'light',

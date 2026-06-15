@@ -26,12 +26,44 @@ const MinePage: React.FC = () => {
 
   const handleMenuClick = (menuKey: string) => {
     console.log('[MinePage] 点击菜单:', menuKey);
-    Taro.showToast({ title: '功能开发中', icon: 'none' });
+    if (menuKey === 'feedback') {
+      Taro.navigateTo({
+        url: '/pages/feedback/index?type=error',
+      });
+    } else if (menuKey === 'new') {
+      Taro.switchTab({
+        url: '/pages/home/index',
+        success: () => {
+          Taro.showToast({ title: '首页查看本周新上榜', icon: 'none' });
+        },
+      });
+    } else {
+      Taro.showToast({ title: '功能开发中', icon: 'none' });
+    }
   };
 
   const handleShare = () => {
-    console.log('[MinePage] 分享');
-    Taro.showToast({ title: '分享功能开发中', icon: 'none' });
+    console.log('[MinePage] 分享小程序');
+    const treasureNames = treasures.slice(0, 5).map((t) => `・${t.name}`).join('\n');
+    Taro.showModal({
+      title: '分享「城市散步宝藏」',
+      content: `【周末城市散步宝藏】小程序\n\n发现城市里的小美好 ✨\n\n已精选${treasures.length}个宝藏点：\n${treasureNames}\n\n快和朋友一起来探索吧！`,
+      showCancel: true,
+      confirmText: '复制清单',
+      cancelText: '小程序分享',
+      success: (res) => {
+        if (res.confirm) {
+          Taro.setClipboardData({
+            data: `【周末城市散步宝藏】\n发现城市里的小美好 ✨\n\n精选宝藏点：\n${treasureNames}\n\n快在微信搜索「城市散步宝藏」来探索吧！`,
+            success: () => {
+              Taro.showToast({ title: '已复制分享清单', icon: 'success' });
+            },
+          });
+        } else {
+          Taro.showToast({ title: '请点击右上角···分享', icon: 'none' });
+        }
+      },
+    });
   };
 
   const menuItems = [
