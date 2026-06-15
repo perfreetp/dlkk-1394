@@ -436,3 +436,46 @@
   color: $color-text-white;
   box-shadow: 0 4rpx 16rpx rgba(255, 125, 74, 0.3);
 }
+
+// ========== 打卡记录列表 ==========
+.checkinRecordList {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-sm;
+}
+
+.checkinRecordItem {
+  display: flex;
+  background-color: $color-bg-card;
+  border-radius: $radius-md;
+  padding: $spacing-md;
+  box-shadow: $shadow-card;
+  gap: $spacing-md;
+}
+
+.checkinRecordPhoto {
+  width: 120rpx;
+  height: 120rpx;
+  border-radius: $radius-sm;
+  flex-shrink: 0;
+}
+
+.checkinRecordContent {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.checkinRecordComment {
+  font-size: $font-size-sm;
+  color: $color-text-secondary;
+  line-height: 1.5;
+  @include text-ellipsis-multi(2);
+}
+
+.checkinRecordDate {
+  font-size: $font-size-xs;
+  color: $color-text-tertiary;
+  margin-top: $spacing-xs;
+}

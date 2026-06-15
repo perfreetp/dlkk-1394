@@ -54,3 +54,50 @@ export const getCategoryColor = (category: string): string => {
   };
   return colors[category] || '#FF7D4A';
 };
+
+function toRad(deg: number): number {
+  return (deg * Math.PI) / 180;
+}
+
+export const calculateDistance = (
+  lat1: number,
+  lng1: number,
+  lat2: number,
+  lng2: number
+): number => {
+  const R = 6371;
+  const dLat = toRad(lat2 - lat1);
+  const dLng = toRad(lng2 - lng1);
+  const a =
+    Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+    Math.cos(toRad(lat1)) * Math.cos(toRad(lat2)) * Math.sin(dLng / 2) * Math.sin(dLng / 2);
+  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+  return Math.round(R * c * 1000) / 1000;
+};
+
+export const estimateWalkTime = (distanceKm: number): number => {
+  return Math.max(5, Math.round(distanceKm / 5 * 60));
+};
+
+export interface SegmentInfo {
+  fromIndex: number;
+  toIndex: number;
+  distance: number;
+  walkTime: number;
+}
+
+export const calculateSegments = (treasures: Treasure[]): SegmentInfo[] => {
+  const segments: SegmentInfo[] = [];
+  for (let i = 0; i < treasures.length - 1; i++) {
+    const from = treasures[i];
+    const to = treasures[i + 1];
+    const dist = calculateDistance(from.latitude, from.longitude, to.latitude, to.longitude);
+    segments.push({
+      fromIndex: i,
+      toIndex: i + 1,
+      distance: dist,
+      walkTime: estimateWalkTime(dist),
+    });
+  }
+  return segments;
+};

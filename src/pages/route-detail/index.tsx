@@ -1,10 +1,16 @@
-import React, { useMemo, useState } from 'react';
+import React, { useMemo } from 'react';
 import { View, Text, Image, ScrollView } from '@tarojs/components';
 import Taro, { useRouter, useDidShow } from '@tarojs/taro';
 import classnames from 'classnames';
 import { useAppStore } from '@/store/useAppStore';
 import { Treasure } from '@/types/treasure';
-import { formatDistance, formatWalkTime, formatBudget, getCategoryLabel } from '@/utils';
+import {
+  formatDistance,
+  formatWalkTime,
+  formatBudget,
+  getCategoryLabel,
+  calculateSegments,
+} from '@/utils';
 import styles from './index.module.scss';
 
 const RouteDetailPage: React.FC = () => {
@@ -28,6 +34,27 @@ const RouteDetailPage: React.FC = () => {
       .filter(Boolean) as Treasure[];
   }, [route, treasures]);
 
+  const segments = useMemo(() => {
+    if (routeTreasures.length < 2) return [];
+    return calculateSegments(routeTreasures);
+  }, [routeTreasures]);
+
+  const totalSegmentDistance = useMemo(() => {
+    return segments.reduce((sum, s) => sum + s.distance, 0);
+  }, [segments]);
+
+  const totalSegmentWalkTime = useMemo(() => {
+    return segments.reduce((sum, s) => sum + s.walkTime, 0);
+  }, [segments]);
+
+  const totalBudget = useMemo(() => {
+    return routeTreasures.reduce((sum, t) => sum + t.budget, 0);
+  }, [routeTreasures]);
+
+  const totalVisitTime = useMemo(() => {
+    return routeTreasures.length * 30;
+  }, [routeTreasures]);
+
   const handleTreasureClick = (treasureId: string) => {
     Taro.navigateTo({
       url: `/pages/treasure-detail/index?id=${treasureId}`,
@@ -45,17 +72,17 @@ const RouteDetailPage: React.FC = () => {
 
   const handleShare = () => {
     if (!route || routeTreasures.length === 0) return;
-    const treasureNames = routeTreasures.map((t) => `・${t.name}`).join('\n');
+    const treasureNames = routeTreasures.map((t, i) => `${i + 1}. ${t.name}`).join('\n');
     Taro.showModal({
       title: `分享路线：${route.name}`,
-      content: `【${route.name}】\n\n${route.description}\n\n📍包含${routeTreasures.length}个地点：\n${treasureNames}\n\n📏总距离：${formatDistance(route.totalDistance)}\n⏱️预计时间：${formatWalkTime(route.totalTime)}\n\n快打开「城市散步宝藏」来探索吧！`,
+      content: `【${route.name}】\n\n${route.description}\n\n📍包含${routeTreasures.length}个地点：\n${treasureNames}\n\n📏步行距离：${formatDistance(totalSegmentDistance)}\n🚶步行时间：${formatWalkTime(totalSegmentWalkTime)}\n⏱️总时长（含游览）：${formatWalkTime(totalSegmentWalkTime + totalVisitTime)}\n💰总预算：${formatBudget(totalBudget)}\n\n快打开「城市散步宝藏」来探索吧！`,
       showCancel: true,
       confirmText: '复制信息',
       cancelText: '小程序分享',
       success: (res) => {
         if (res.confirm) {
           Taro.setClipboardData({
-            data: `【${route.name}】\n${route.description}\n\n包含${routeTreasures.length}个地点：\n${treasureNames}\n\n总距离：${formatDistance(route.totalDistance)}\n预计时间：${formatWalkTime(route.totalTime)}`,
+            data: `【${route.name}】\n${route.description}\n\n包含${routeTreasures.length}个地点：\n${treasureNames}\n\n步行距离：${formatDistance(totalSegmentDistance)}\n步行时间：${formatWalkTime(totalSegmentWalkTime)}\n总预算：${formatBudget(totalBudget)}`,
             success: () => {
               Taro.showToast({ title: '已复制分享文案', icon: 'success' });
             },
@@ -90,8 +117,6 @@ const RouteDetailPage: React.FC = () => {
     );
   }
 
-  const totalBudget = routeTreasures.reduce((sum, t) => sum + t.budget, 0);
-
   return (
     <ScrollView scrollY className={styles.page}>
       <View className={styles.header}>
@@ -104,15 +129,15 @@ const RouteDetailPage: React.FC = () => {
             <Text className={styles.statLabel}>个地点</Text>
           </View>
           <View className={styles.statItem}>
-            <Text className={styles.statValue}>{formatDistance(route.totalDistance)}</Text>
-            <Text className={styles.statLabel}>总距离</Text>
+            <Text className={styles.statValue}>{formatDistance(totalSegmentDistance)}</Text>
+            <Text className={styles.statLabel}>步行距离</Text>
           </View>
           <View className={styles.statItem}>
-            <Text className={styles.statValue}>{formatWalkTime(route.totalTime)}</Text>
-            <Text className={styles.statLabel}>预计时长</Text>
+            <Text className={styles.statValue}>{formatWalkTime(totalSegmentWalkTime + totalVisitTime)}</Text>
+            <Text className={styles.statLabel}>总时长</Text>
           </View>
           <View className={styles.statItem}>
-            <Text className={styles.statValue}>¥{totalBudget}</Text>
+            <Text className={styles.statValue}>{formatBudget(totalBudget)}</Text>
             <Text className={styles.statLabel}>总预算</Text>
           </View>
         </View>
@@ -126,43 +151,100 @@ const RouteDetailPage: React.FC = () => {
 
         <View className={styles.timeline}>
           {routeTreasures.map((treasure, index) => (
-            <View key={treasure.id} className={styles.timelineItem}>
-              <View className={styles.timelineDot}>{index + 1}</View>
-              <View
-                className={styles.timelineCard}
-                onClick={() => handleTreasureClick(treasure.id)}
-              >
-                <View className={styles.timelineCardHeader}>
-                  <Image
-                    className={styles.timelineImage}
-                    src={treasure.image}
-                    mode="aspectFill"
-                  />
-                  <View className={styles.timelineInfo}>
-                    <View>
-                      <Text className={styles.timelineName}>{treasure.name}</Text>
-                      <View className={styles.timelineCategory}>
-                        {getCategoryLabel(treasure.category)}
+            <View key={treasure.id}>
+              <View className={styles.timelineItem}>
+                <View className={styles.timelineDot}>{index + 1}</View>
+                <View
+                  className={styles.timelineCard}
+                  onClick={() => handleTreasureClick(treasure.id)}
+                >
+                  <View className={styles.timelineCardHeader}>
+                    <Image
+                      className={styles.timelineImage}
+                      src={treasure.image}
+                      mode="aspectFill"
+                    />
+                    <View className={styles.timelineInfo}>
+                      <View>
+                        <Text className={styles.timelineName}>{treasure.name}</Text>
+                        <View className={styles.timelineCategory}>
+                          {getCategoryLabel(treasure.category)}
+                        </View>
+                      </View>
+                      <View className={styles.timelineMeta}>
+                        <Text className={styles.timelineMetaItem}>
+                          � {formatBudget(treasure.budget)}
+                        </Text>
+                        {treasure.isRainy && (
+                          <Text className={styles.timelineMetaItem}>🌧️</Text>
+                        )}
+                        {treasure.isFamilyFriendly && (
+                          <Text className={styles.timelineMetaItem}>👨‍👩‍👧</Text>
+                        )}
                       </View>
                     </View>
-                    <View className={styles.timelineMeta}>
-                      <Text className={styles.timelineMetaItem}>
-                        📍 {formatDistance(treasure.distance)}
-                      </Text>
-                      <Text className={styles.timelineMetaItem}>
-                        💰 {formatBudget(treasure.budget)}
-                      </Text>
-                    </View>
+                  </View>
+                  <View className={styles.timelineCardBody}>
+                    <Text className={styles.timelineDuration}>
+                      ⏱️ 建议停留约30分钟
+                    </Text>
                   </View>
                 </View>
-                <View className={styles.timelineCardBody}>
-                  <Text className={styles.timelineDuration}>
-                    ⏱️ 建议停留：约30分钟 · 步行{formatWalkTime(treasure.walkTime)}可达
-                  </Text>
-                </View>
               </View>
+
+              {index < routeTreasures.length - 1 && segments[index] && (
+                <View className={styles.segmentBar}>
+                  <View className={styles.segmentLine} />
+                  <View className={styles.segmentInfo}>
+                    <Text className={styles.segmentIcon}>🚶</Text>
+                    <Text className={styles.segmentText}>
+                      步行 {formatDistance(segments[index].distance)} · 约{formatWalkTime(segments[index].walkTime)}
+                    </Text>
+                    <Text className={styles.segmentFrom}>
+                      {treasure.name}
+                    </Text>
+                    <Text className={styles.segmentArrow}>→</Text>
+                    <Text className={styles.segmentTo}>
+                      {routeTreasures[index + 1].name}
+                    </Text>
+                  </View>
+                  <View className={styles.segmentLine} />
+                </View>
+              )}
             </View>
           ))}
+        </View>
+      </View>
+
+      <View className={styles.section}>
+        <Text className={styles.sectionTitle}>
+          <Text className={styles.sectionIcon}>📊</Text>
+          路线统计
+        </Text>
+        <View className={styles.statsCard}>
+          <View className={styles.statsGrid}>
+            <View className={styles.statsGridItem}>
+              <Text className={styles.statsGridValue}>{formatDistance(totalSegmentDistance)}</Text>
+              <Text className={styles.statsGridLabel}>总步行距离</Text>
+            </View>
+            <View className={styles.statsGridItem}>
+              <Text className={styles.statsGridValue}>{formatWalkTime(totalSegmentWalkTime)}</Text>
+              <Text className={styles.statsGridLabel}>纯步行时间</Text>
+            </View>
+            <View className={styles.statsGridItem}>
+              <Text className={styles.statsGridValue}>{formatWalkTime(totalVisitTime)}</Text>
+              <Text className={styles.statsGridLabel}>游览时间</Text>
+            </View>
+            <View className={styles.statsGridItem}>
+              <Text className={styles.statsGridValue}>{formatBudget(totalBudget)}</Text>
+              <Text className={styles.statsGridLabel}>总预算</Text>
+            </View>
+          </View>
+          <View className={styles.statsSummary}>
+            <Text className={styles.statsSummaryText}>
+              🕐 总时长约 {formatWalkTime(totalSegmentWalkTime + totalVisitTime)}（含步行+游览）
+            </Text>
+          </View>
         </View>
       </View>
 
@@ -181,7 +263,7 @@ const RouteDetailPage: React.FC = () => {
           <View className={styles.tipItem}>
             <Text className={styles.tipIcon}>👟</Text>
             <Text className={styles.tipText}>
-              穿舒适的鞋子，全程步行约{formatWalkTime(route.totalTime)}
+              穿舒适的鞋子，全程步行约{formatDistance(totalSegmentDistance)}，步行时间{formatWalkTime(totalSegmentWalkTime)}
             </Text>
           </View>
           <View className={styles.tipItem}>

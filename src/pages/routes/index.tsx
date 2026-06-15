@@ -1,25 +1,88 @@
 import React, { useState, useMemo } from 'react';
 import { View, Text, Image, ScrollView } from '@tarojs/components';
 import Taro, { useDidShow } from '@tarojs/taro';
+import classnames from 'classnames';
 import { useAppStore } from '@/store/useAppStore';
 import RouteCard from '@/components/RouteCard';
-import { formatDistance, formatWalkTime } from '@/utils';
+import { formatDistance, formatWalkTime, formatBudget } from '@/utils';
 import styles from './index.module.scss';
 
+type SceneFilter = 'all' | 'family' | 'rainy' | 'free' | 'halfday';
+
+const sceneOptions: Array<{ key: SceneFilter; label: string; icon: string }> = [
+  { key: 'all', label: '全部', icon: '📍' },
+  { key: 'family', label: '亲子', icon: '👨‍👩‍👧' },
+  { key: 'rainy', label: '雨天', icon: '🌧️' },
+  { key: 'free', label: '免费', icon: '🆓' },
+  { key: 'halfday', label: '半日游', icon: '🕐' },
+];
+
 const RoutesPage: React.FC = () => {
-  const { routes, toggleRouteFavorite } = useAppStore();
+  const { routes, treasures, toggleRouteFavorite } = useAppStore();
   const [activeTab, setActiveTab] = useState<'all' | 'favorite'>('all');
+  const [sceneFilter, setSceneFilter] = useState<SceneFilter>('all');
 
   useDidShow(() => {
     console.log('[RoutesPage] 页面显示');
   });
 
+  const routesWithDetails = useMemo(() => {
+    return routes.map((route) => {
+      const routeTreasures = route.treasureIds
+        .map((id) => treasures.find((t) => t.id === id))
+        .filter(Boolean);
+
+      const hasFamily = routeTreasures.some((t) => t.isFamilyFriendly);
+      const hasRainy = routeTreasures.some((t) => t.isRainy);
+      const allFree = routeTreasures.every((t) => t.budget === 0);
+      const totalBudget = routeTreasures.reduce((sum, t) => sum + t.budget, 0);
+      const isHalfDay = route.totalTime <= 180;
+
+      const sceneTags: string[] = [];
+      if (hasFamily) sceneTags.push('亲子');
+      if (hasRainy) sceneTags.push('雨天');
+      if (allFree) sceneTags.push('免费');
+      if (isHalfDay) sceneTags.push('半日游');
+
+      return {
+        ...route,
+        hasFamily,
+        hasRainy,
+        allFree,
+        totalBudget,
+        isHalfDay,
+        sceneTags,
+        pointCount: routeTreasures.length,
+      };
+    });
+  }, [routes, treasures]);
+
   const filteredRoutes = useMemo(() => {
+    let result = routesWithDetails;
+
     if (activeTab === 'favorite') {
-      return routes.filter((r) => r.isFavorite);
+      result = result.filter((r) => r.isFavorite);
     }
-    return routes;
-  }, [routes, activeTab]);
+
+    if (sceneFilter !== 'all') {
+      result = result.filter((r) => {
+        switch (sceneFilter) {
+          case 'family':
+            return r.hasFamily;
+          case 'rainy':
+            return r.hasRainy;
+          case 'free':
+            return r.allFree;
+          case 'halfday':
+            return r.isHalfDay;
+          default:
+            return true;
+        }
+      });
+    }
+
+    return result;
+  }, [routesWithDetails, activeTab, sceneFilter]);
 
   const handleRouteClick = (routeId: string) => {
     console.log('[RoutesPage] 点击路线:', routeId);
@@ -96,11 +159,37 @@ const RoutesPage: React.FC = () => {
         </View>
       </View>
 
+      <View className={styles.sceneSection}>
+        <Text className={styles.sceneTitle}>
+          <Text className={styles.sceneTitleIcon}>🎯</Text>
+          按场景找路线
+        </Text>
+        <ScrollView scrollX className={styles.sceneList}>
+          {sceneOptions.map((option) => (
+            <View
+              key={option.key}
+              className={classnames(
+                styles.sceneItem,
+                sceneFilter === option.key && styles.sceneItemActive,
+              )}
+              onClick={() => setSceneFilter(option.key)}
+            >
+              <Text className={styles.sceneIcon}>{option.icon}</Text>
+              <Text className={styles.sceneLabel}>{option.label}</Text>
+            </View>
+          ))}
+        </ScrollView>
+      </View>
+
       <View className={styles.section}>
         <View className={styles.sectionHeader}>
           <Text className={styles.sectionTitle}>
             <Text className={styles.sectionIcon}>📋</Text>
-            {activeTab === 'all' ? '我的路线' : '收藏的路线'}
+            {activeTab === 'all'
+              ? sceneFilter !== 'all'
+                ? `${sceneOptions.find((s) => s.key === sceneFilter)?.label || ''}路线`
+                : '我的路线'
+              : '收藏的路线'}
           </Text>
           <Text style={{ fontSize: '24rpx', color: '#86909c' }}>
             共 {filteredRoutes.length} 条
@@ -111,16 +200,30 @@ const RoutesPage: React.FC = () => {
       <View className={styles.routeList}>
         {filteredRoutes.length > 0 ? (
           filteredRoutes.map((route) => (
-            <RouteCard
-              key={route.id}
-              route={route}
-              onClick={() => handleRouteClick(route.id)}
-              onFavorite={() => handleFavorite(route.id)}
-            />
+            <View key={route.id} className={styles.routeCardWrapper}>
+              <RouteCard
+                route={route}
+                onClick={() => handleRouteClick(route.id)}
+                onFavorite={() => handleFavorite(route.id)}
+              />
+              {route.sceneTags.length > 0 && (
+                <View className={styles.sceneTagsRow}>
+                  {route.sceneTags.map((tag) => (
+                    <View key={tag} className={styles.sceneTag}>
+                      <Text className={styles.sceneTagText}>{tag}</Text>
+                    </View>
+                  ))}
+                  <Text className={styles.routeMetaText}>
+                    {route.pointCount}个点 · {formatBudget(route.totalBudget)}
+                  </Text>
+                </View>
+              )}
+            </View>
           ))
         ) : (
           <View className={styles.emptyText}>
-            还没有路线哦{'\n'}点击右下角按钮创建你的第一条路线吧~
+            {sceneFilter !== 'all' ? '没有符合条件的路线，换个场景试试~' : '还没有路线哦'}{'\n'}
+            点击右下角按钮创建你的第一条路线吧~
           </View>
         )}
       </View>

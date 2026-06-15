@@ -14,7 +14,7 @@ import styles from './index.module.scss';
 
 const TreasureDetailPage: React.FC = () => {
   const router = useRouter();
-  const { treasures, favoriteIds, addToFavorites, removeFromFavorites, addToCurrentRoute, addCheckin } =
+  const { treasures, favoriteIds, checkins, addToFavorites, removeFromFavorites, addToCurrentRoute, addCheckin } =
     useAppStore();
 
   const [showCheckinModal, setShowCheckinModal] = useState(false);
@@ -274,6 +274,33 @@ const TreasureDetailPage: React.FC = () => {
 
         <View style={{ height: '40rpx' }}></View>
       </View>
+
+      {checkins.filter((c) => c.treasureId === treasureId).length > 0 && (
+        <View className={styles.section} style={{ padding: '0 32rpx', marginTop: '0' }}>
+          <Text className={styles.sectionTitle}>
+            <Text className={styles.sectionIcon}>📸</Text>
+            打卡记录（{checkins.filter((c) => c.treasureId === treasureId).length}）
+          </Text>
+          <View className={styles.checkinRecordList}>
+            {checkins
+              .filter((c) => c.treasureId === treasureId)
+              .slice(0, 3)
+              .map((record) => (
+                <View key={record.id} className={styles.checkinRecordItem}>
+                  <Image
+                    className={styles.checkinRecordPhoto}
+                    src={record.photo}
+                    mode="aspectFill"
+                  />
+                  <View className={styles.checkinRecordContent}>
+                    <Text className={styles.checkinRecordComment}>{record.comment}</Text>
+                    <Text className={styles.checkinRecordDate}>{record.createdAt}</Text>
+                  </View>
+                </View>
+              ))}
+          </View>
+        </View>
+      )}
 
       {/* 打卡弹窗 */}
       {showCheckinModal && (

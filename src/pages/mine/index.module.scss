@@ -157,6 +157,12 @@
   border-radius: $radius-lg;
   padding: $spacing-md;
   box-shadow: $shadow-card;
+  transition: all $transition-base;
+
+  &:active {
+    transform: scale(0.98);
+    background-color: $color-bg-hover;
+  }
 }
 
 .checkinPhoto {
@@ -189,9 +195,21 @@
   margin-top: $spacing-xs;
 }
 
+.checkinBottom {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
 .checkinDate {
   font-size: $font-size-xs;
   color: $color-text-tertiary;
+}
+
+.checkinArrow {
+  font-size: $font-size-lg;
+  color: $color-text-tertiary;
+  font-weight: $font-weight-bold;
 }
 
 .favoriteList {
@@ -206,4 +224,140 @@
   color: $color-primary;
   font-size: $font-size-sm;
   font-weight: $font-weight-medium;
+}
+
+.emptyHint {
+  text-align: center;
+  padding: 48rpx 0;
+  color: #B2BEC3;
+  font-size: 24rpx;
+}
+
+// ========== 打卡详情弹窗 ==========
+.checkinDetailModal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 999;
+}
+
+.checkinDetailMask {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+}
+
+.checkinDetailContent {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  width: 640rpx;
+  background-color: $color-bg-card;
+  border-radius: $radius-xl;
+  overflow: hidden;
+  box-shadow: $shadow-popup;
+}
+
+.checkinDetailHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: $spacing-lg;
+  border-bottom: 1rpx solid $color-divider;
+}
+
+.checkinDetailTitle {
+  font-size: $font-size-lg;
+  font-weight: $font-weight-semibold;
+  color: $color-text-primary;
+}
+
+.checkinDetailClose {
+  width: 48rpx;
+  height: 48rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.checkinDetailBody {
+  padding: $spacing-lg;
+}
+
+.checkinDetailPhoto {
+  width: 100%;
+  height: 400rpx;
+  border-radius: $radius-md;
+}
+
+.checkinDetailInfo {
+  margin-top: $spacing-lg;
+}
+
+.checkinDetailName {
+  font-size: $font-size-lg;
+  font-weight: $font-weight-semibold;
+  color: $color-text-primary;
+  display: block;
+}
+
+.checkinDetailComment {
+  font-size: $font-size-md;
+  color: $color-text-secondary;
+  line-height: 1.6;
+  margin-top: $spacing-sm;
+  display: block;
+}
+
+.checkinDetailDate {
+  font-size: $font-size-sm;
+  color: $color-text-tertiary;
+  margin-top: $spacing-sm;
+  display: block;
+}
+
+.checkinDetailFooter {
+  display: flex;
+  gap: $spacing-md;
+  padding: 0 $spacing-lg $spacing-lg;
+}
+
+.checkinDetailBtn {
+  flex: 1;
+  height: $button-height-md;
+  border-radius: $radius-button;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: $font-size-md;
+  font-weight: $font-weight-medium;
+  transition: all $transition-base;
+
+  &:active {
+    transform: scale(0.98);
+    opacity: 0.9;
+  }
+}
+
+.checkinDetailBtnIcon {
+  font-size: $font-size-lg;
+  margin-right: 8rpx;
+}
+
+.btnGoTreasure {
+  background: linear-gradient(135deg, $color-primary 0%, $color-primary-light 100%);
+  color: $color-text-white;
+  box-shadow: 0 4rpx 16rpx rgba(255, 125, 74, 0.3);
+}
+
+.btnDelete {
+  background-color: $color-bg-page;
+  color: $color-error;
+  border: 2rpx solid $color-error;
 }

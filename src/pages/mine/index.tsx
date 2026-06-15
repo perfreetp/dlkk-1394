@@ -1,18 +1,34 @@
 import React, { useState } from 'react';
 import { View, Text, Image, ScrollView } from '@tarojs/components';
 import Taro, { useDidShow } from '@tarojs/taro';
+import classnames from 'classnames';
 import { useAppStore } from '@/store/useAppStore';
 import TreasureCard from '@/components/TreasureCard';
 import styles from './index.module.scss';
 
 const MinePage: React.FC = () => {
-  const { treasures, favoriteIds, checkins, addToFavorites, removeFromFavorites } = useAppStore();
+  const {
+    treasures,
+    favoriteIds,
+    checkins,
+    routes,
+    addToFavorites,
+    removeFromFavorites,
+    removeCheckin,
+  } = useAppStore();
+
+  const [activeCheckinId, setActiveCheckinId] = useState<string | null>(null);
 
   useDidShow(() => {
     console.log('[MinePage] 页面显示');
   });
 
   const favoriteTreasures = treasures.filter((t) => favoriteIds.includes(t.id));
+  const userRouteCount = routes.length;
+
+  const activeCheckin = activeCheckinId
+    ? checkins.find((c) => c.id === activeCheckinId)
+    : null;
 
   const handleFavorite = (id: string) => {
     if (favoriteIds.includes(id)) {
@@ -66,6 +82,38 @@ const MinePage: React.FC = () => {
     });
   };
 
+  const handleCheckinClick = (checkinId: string) => {
+    setActiveCheckinId(checkinId);
+  };
+
+  const handleCloseCheckinDetail = () => {
+    setActiveCheckinId(null);
+  };
+
+  const handleGoToTreasure = (treasureId: string) => {
+    setActiveCheckinId(null);
+    Taro.navigateTo({
+      url: `/pages/treasure-detail/index?id=${treasureId}`,
+    });
+  };
+
+  const handleDeleteCheckin = (checkinId: string) => {
+    Taro.showModal({
+      title: '删除打卡记录',
+      content: '确定要删除这条打卡记录吗？删除后无法恢复。',
+      confirmText: '删除',
+      confirmColor: '#FF4757',
+      cancelText: '取消',
+      success: (res) => {
+        if (res.confirm) {
+          removeCheckin(checkinId);
+          setActiveCheckinId(null);
+          Taro.showToast({ title: '已删除', icon: 'success' });
+        }
+      },
+    });
+  };
+
   const menuItems = [
     { key: 'new', icon: '✨', label: '本周新上榜', badge: '5个' },
     { key: 'feedback', icon: '💬', label: '用户反馈/纠错' },
@@ -95,7 +143,7 @@ const MinePage: React.FC = () => {
             <Text className={styles.statLabel}>打卡</Text>
           </View>
           <View className={styles.statItem}>
-            <Text className={styles.statNumber}>3</Text>
+            <Text className={styles.statNumber}>{userRouteCount}</Text>
             <Text className={styles.statLabel}>路线</Text>
           </View>
           <View className={styles.statItem}>
@@ -128,14 +176,7 @@ const MinePage: React.FC = () => {
             )}
           </View>
         ) : (
-          <View
-            style={{
-              textAlign: 'center',
-              padding: '48rpx 0',
-              color: '#B2BEC3',
-              fontSize: '24rpx',
-            }}
-          >
+          <View className={styles.emptyHint}>
             还没有收藏的宝藏，快去发现吧~
           </View>
         )}
@@ -149,8 +190,12 @@ const MinePage: React.FC = () => {
 
         {checkins.length > 0 ? (
           <View className={styles.checkinList}>
-            {checkins.slice(0, 3).map((checkin) => (
-              <View key={checkin.id} className={styles.checkinCard}>
+            {checkins.slice(0, 5).map((checkin) => (
+              <View
+                key={checkin.id}
+                className={styles.checkinCard}
+                onClick={() => handleCheckinClick(checkin.id)}
+              >
                 <Image
                   className={styles.checkinPhoto}
                   src={checkin.photo}
@@ -161,20 +206,21 @@ const MinePage: React.FC = () => {
                     <Text className={styles.checkinTitle}>{checkin.treasureName}</Text>
                     <Text className={styles.checkinComment}>{checkin.comment}</Text>
                   </View>
-                  <Text className={styles.checkinDate}>{checkin.createdAt}</Text>
+                  <View className={styles.checkinBottom}>
+                    <Text className={styles.checkinDate}>{checkin.createdAt}</Text>
+                    <Text className={styles.checkinArrow}>›</Text>
+                  </View>
                 </View>
               </View>
             ))}
+            {checkins.length > 5 && (
+              <View className={styles.viewAll}>
+                共 {checkins.length} 条打卡记录
+              </View>
+            )}
           </View>
         ) : (
-          <View
-            style={{
-              textAlign: 'center',
-              padding: '48rpx 0',
-              color: '#B2BEC3',
-              fontSize: '24rpx',
-            }}
-          >
+          <View className={styles.emptyHint}>
             还没有打卡记录，快去探索吧~
           </View>
         )}
@@ -203,6 +249,63 @@ const MinePage: React.FC = () => {
           ))}
         </View>
       </View>
+
+      {activeCheckin && (
+        <View className={styles.checkinDetailModal}>
+          <View
+            className={styles.checkinDetailMask}
+            onClick={handleCloseCheckinDetail}
+          />
+          <View className={styles.checkinDetailContent}>
+            <View className={styles.checkinDetailHeader}>
+              <Text className={styles.checkinDetailTitle}>打卡详情</Text>
+              <View
+                className={styles.checkinDetailClose}
+                onClick={handleCloseCheckinDetail}
+              >
+                <Text style={{ fontSize: '32rpx', color: '#B2BEC3' }}>✕</Text>
+              </View>
+            </View>
+
+            <View className={styles.checkinDetailBody}>
+              <Image
+                className={styles.checkinDetailPhoto}
+                src={activeCheckin.photo}
+                mode="aspectFill"
+              />
+
+              <View className={styles.checkinDetailInfo}>
+                <Text className={styles.checkinDetailName}>
+                  {activeCheckin.treasureName}
+                </Text>
+                <Text className={styles.checkinDetailComment}>
+                  {activeCheckin.comment}
+                </Text>
+                <Text className={styles.checkinDetailDate}>
+                  🕐 {activeCheckin.createdAt}
+                </Text>
+              </View>
+            </View>
+
+            <View className={styles.checkinDetailFooter}>
+              <View
+                className={classnames(styles.checkinDetailBtn, styles.btnGoTreasure)}
+                onClick={() => handleGoToTreasure(activeCheckin.treasureId)}
+              >
+                <Text className={styles.checkinDetailBtnIcon}>📍</Text>
+                <Text>查看宝藏</Text>
+              </View>
+              <View
+                className={classnames(styles.checkinDetailBtn, styles.btnDelete)}
+                onClick={() => handleDeleteCheckin(activeCheckin.id)}
+              >
+                <Text className={styles.checkinDetailBtnIcon}>🗑️</Text>
+                <Text>删除记录</Text>
+              </View>
+            </View>
+          </View>
+        </View>
+      )}
     </ScrollView>
   );
 };
