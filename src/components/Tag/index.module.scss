@@ -1,0 +1,71 @@
+@use '@/styles/variables.scss' as *;
+
+.tag {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: $radius-sm;
+  white-space: nowrap;
+
+  &-small {
+    padding: 4rpx 12rpx;
+    .tagText {
+      font-size: $font-size-xs;
+      line-height: 1.2;
+    }
+  }
+
+  &-medium {
+    padding: 8rpx 16rpx;
+    .tagText {
+      font-size: $font-size-sm;
+      line-height: 1.3;
+    }
+  }
+
+  &-primary {
+    background-color: rgba(255, 125, 74, 0.1);
+    .tagText {
+      color: $color-primary;
+    }
+  }
+
+  &-rain {
+    background-color: rgba(116, 185, 255, 0.15);
+    .tagText {
+      color: $color-tag-rain;
+    }
+  }
+
+  &-family {
+    background-color: rgba(162, 155, 254, 0.15);
+    .tagText {
+      color: $color-tag-family;
+    }
+  }
+
+  &-new {
+    background-color: rgba(253, 121, 168, 0.15);
+    .tagText {
+      color: $color-tag-new;
+    }
+  }
+
+  &-free {
+    background-color: rgba(85, 239, 196, 0.15);
+    .tagText {
+      color: $color-tag-free;
+    }
+  }
+
+  &-default {
+    background-color: $color-bg-tag;
+    .tagText {
+      color: $color-text-secondary;
+    }
+  }
+}
+
+.tagText {
+  font-weight: $font-weight-medium;
+}

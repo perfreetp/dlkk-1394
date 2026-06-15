@@ -1,0 +1,209 @@
+@use '@/styles/variables.scss' as *;
+
+.page {
+  min-height: 100vh;
+  background-color: $color-bg-page;
+  padding-bottom: $spacing-xl;
+}
+
+.header {
+  background: linear-gradient(135deg, $color-primary 0%, $color-accent 100%);
+  padding: $spacing-xl * 1.5 $page-padding $spacing-xl * 2;
+  border-radius: 0 0 40rpx 40rpx;
+}
+
+.userInfo {
+  display: flex;
+  align-items: center;
+}
+
+.avatar {
+  width: 128rpx;
+  height: 128rpx;
+  border-radius: $radius-round;
+  background-color: rgba(255, 255, 255, 0.3);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 60rpx;
+  border: 4rpx solid rgba(255, 255, 255, 0.5);
+}
+
+.userDetail {
+  flex: 1;
+  margin-left: $spacing-lg;
+}
+
+.username {
+  font-size: $font-size-xl;
+  font-weight: $font-weight-bold;
+  color: $color-text-white;
+}
+
+.userDesc {
+  font-size: $font-size-sm;
+  color: rgba(255, 255, 255, 0.85);
+  margin-top: 6rpx;
+}
+
+.statsRow {
+  display: flex;
+  justify-content: space-around;
+  margin-top: $spacing-xl;
+  background-color: rgba(255, 255, 255, 0.2);
+  border-radius: $radius-lg;
+  padding: $spacing-lg 0;
+}
+
+.statItem {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  flex: 1;
+}
+
+.statNumber {
+  font-size: $font-size-xxl;
+  font-weight: $font-weight-bold;
+  color: $color-text-white;
+}
+
+.statLabel {
+  font-size: $font-size-xs;
+  color: rgba(255, 255, 255, 0.85);
+  margin-top: 6rpx;
+}
+
+.section {
+  margin-top: $spacing-lg;
+  padding: 0 $page-padding;
+}
+
+.sectionTitle {
+  font-size: $font-size-lg;
+  font-weight: $font-weight-semibold;
+  color: $color-text-primary;
+  margin-bottom: $spacing-md;
+  display: flex;
+  align-items: center;
+  gap: $spacing-sm;
+}
+
+.sectionIcon {
+  font-size: $font-size-lg;
+}
+
+.menuList {
+  background-color: $color-bg-card;
+  border-radius: $radius-lg;
+  overflow: hidden;
+  box-shadow: $shadow-card;
+}
+
+.menuItem {
+  display: flex;
+  align-items: center;
+  padding: $spacing-lg;
+  border-bottom: 1rpx solid $color-divider;
+  transition: background-color $transition-fast;
+
+  &:last-child {
+    border-bottom: none;
+  }
+
+  &:active {
+    background-color: $color-bg-hover;
+  }
+}
+
+.menuIcon {
+  font-size: $font-size-xl;
+  margin-right: $spacing-md;
+  width: 48rpx;
+  text-align: center;
+}
+
+.menuText {
+  flex: 1;
+  font-size: $font-size-md;
+  color: $color-text-primary;
+}
+
+.menuArrow {
+  font-size: $font-size-md;
+  color: $color-text-tertiary;
+}
+
+.menuBadge {
+  font-size: $font-size-xs;
+  color: $color-text-tertiary;
+  margin-right: $spacing-sm;
+}
+
+.checkinSection {
+  margin-top: $spacing-lg;
+  padding: 0 $page-padding;
+}
+
+.checkinList {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-md;
+}
+
+.checkinCard {
+  display: flex;
+  background-color: $color-bg-card;
+  border-radius: $radius-lg;
+  padding: $spacing-md;
+  box-shadow: $shadow-card;
+}
+
+.checkinPhoto {
+  width: 160rpx;
+  height: 160rpx;
+  border-radius: $radius-md;
+  flex-shrink: 0;
+}
+
+.checkinContent {
+  flex: 1;
+  margin-left: $spacing-md;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.checkinTitle {
+  font-size: $font-size-md;
+  font-weight: $font-weight-semibold;
+  color: $color-text-primary;
+  @include text-ellipsis;
+}
+
+.checkinComment {
+  font-size: $font-size-sm;
+  color: $color-text-secondary;
+  line-height: 1.5;
+  @include text-ellipsis-multi(2);
+  margin-top: $spacing-xs;
+}
+
+.checkinDate {
+  font-size: $font-size-xs;
+  color: $color-text-tertiary;
+}
+
+.favoriteList {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-md;
+}
+
+.viewAll {
+  text-align: center;
+  padding: $spacing-md;
+  color: $color-primary;
+  font-size: $font-size-sm;
+  font-weight: $font-weight-medium;
+}

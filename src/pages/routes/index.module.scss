@@ -1,0 +1,202 @@
+@use '@/styles/variables.scss' as *;
+
+.page {
+  min-height: 100vh;
+  background-color: $color-bg-page;
+  padding-bottom: 120rpx;
+}
+
+.header {
+  background: linear-gradient(135deg, $color-secondary 0%, $color-secondary-light 100%);
+  padding: $spacing-xl $page-padding;
+  border-radius: 0 0 32rpx 32rpx;
+}
+
+.headerTitle {
+  font-size: $font-size-xxl;
+  font-weight: $font-weight-bold;
+  color: $color-text-white;
+}
+
+.headerDesc {
+  font-size: $font-size-sm;
+  color: rgba(255, 255, 255, 0.85);
+  margin-top: $spacing-xs;
+}
+
+.tabs {
+  display: flex;
+  margin-top: $spacing-lg;
+  background-color: rgba(255, 255, 255, 0.2);
+  border-radius: $radius-button;
+  padding: 6rpx;
+}
+
+.tab {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: $spacing-sm 0;
+  border-radius: $radius-button;
+  transition: all $transition-base;
+
+  &.active {
+    background-color: $color-bg-card;
+
+    .tabText {
+      color: $color-secondary;
+      font-weight: $font-weight-semibold;
+    }
+  }
+}
+
+.tabText {
+  font-size: $font-size-sm;
+  color: rgba(255, 255, 255, 0.9);
+}
+
+.section {
+  padding: 0 $page-padding;
+  margin-top: $spacing-lg;
+}
+
+.sectionHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: $spacing-md;
+}
+
+.sectionTitle {
+  font-size: $font-size-lg;
+  font-weight: $font-weight-semibold;
+  color: $color-text-primary;
+  display: flex;
+  align-items: center;
+  gap: $spacing-sm;
+}
+
+.sectionIcon {
+  font-size: $font-size-lg;
+}
+
+.createBtn {
+  position: fixed;
+  bottom: 120rpx;
+  right: $page-padding;
+  width: 120rpx;
+  height: 120rpx;
+  background: linear-gradient(135deg, $color-primary 0%, $color-primary-light 100%);
+  border-radius: $radius-round;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 8rpx 24rpx rgba(255, 125, 74, 0.4);
+  z-index: 100;
+  transition: all $transition-base;
+
+  &:active {
+    transform: scale(0.9);
+  }
+}
+
+.createBtnIcon {
+  font-size: 40rpx;
+  color: $color-text-white;
+  margin-bottom: 4rpx;
+}
+
+.createBtnText {
+  font-size: 20rpx;
+  color: $color-text-white;
+  font-weight: $font-weight-medium;
+}
+
+.recommendSection {
+  margin-top: $spacing-lg;
+}
+
+.recommendTitle {
+  font-size: $font-size-lg;
+  font-weight: $font-weight-semibold;
+  color: $color-text-primary;
+  padding: 0 $page-padding;
+  margin-bottom: $spacing-md;
+  display: flex;
+  align-items: center;
+  gap: $spacing-sm;
+}
+
+.recommendList {
+  @include scroll-x-container;
+  margin: 0 (-$page-padding);
+  padding: 0 $page-padding;
+}
+
+.recommendCard {
+  @include scroll-x-item(320rpx);
+  display: inline-flex;
+  flex-direction: column;
+  background-color: $color-bg-card;
+  border-radius: $radius-lg;
+  overflow: hidden;
+  margin-right: $spacing-md;
+  box-shadow: $shadow-card;
+
+  &:active {
+    transform: scale(0.96);
+  }
+}
+
+.recommendImage {
+  width: 100%;
+  height: 200rpx;
+}
+
+.recommendContent {
+  padding: $spacing-md;
+}
+
+.recommendName {
+  font-size: $font-size-md;
+  font-weight: $font-weight-semibold;
+  color: $color-text-primary;
+  @include text-ellipsis;
+}
+
+.recommendDesc {
+  font-size: $font-size-xs;
+  color: $color-text-secondary;
+  margin-top: 6rpx;
+  @include text-ellipsis-multi(2);
+  line-height: 1.4;
+}
+
+.recommendStats {
+  display: flex;
+  align-items: center;
+  gap: $spacing-md;
+  margin-top: $spacing-sm;
+}
+
+.recommendStat {
+  font-size: $font-size-xs;
+  color: $color-text-tertiary;
+  display: flex;
+  align-items: center;
+  gap: 4rpx;
+}
+
+.routeList {
+  padding: 0 $page-padding;
+}
+
+.emptyText {
+  text-align: center;
+  padding: $spacing-xl * 2 0;
+  color: $color-text-tertiary;
+  font-size: $font-size-sm;
+  line-height: 1.6;
+}

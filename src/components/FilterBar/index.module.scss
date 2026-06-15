@@ -1,0 +1,94 @@
+@use '@/styles/variables.scss' as *;
+
+.filterBar {
+  background-color: $color-bg-card;
+  padding: $spacing-md 0;
+  border-bottom: 1rpx solid $color-divider;
+}
+
+.categoryScroll {
+  @include scroll-x-container;
+  padding: 0 $page-padding;
+  margin-bottom: $spacing-md;
+}
+
+.categoryList {
+  display: inline-flex;
+  gap: $spacing-md;
+}
+
+.categoryItem {
+  @include scroll-x-item(auto);
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  padding: $spacing-sm $spacing-md;
+  background-color: $color-bg-page;
+  border-radius: $radius-md;
+  transition: all $transition-base;
+
+  &.categoryActive {
+    background-color: rgba(255, 125, 74, 0.1);
+
+    .categoryLabel {
+      color: $color-primary;
+      font-weight: $font-weight-semibold;
+    }
+  }
+
+  &:active {
+    transform: scale(0.95);
+  }
+}
+
+.categoryIcon {
+  font-size: $font-size-xl;
+  margin-bottom: 4rpx;
+}
+
+.categoryLabel {
+  font-size: $font-size-xs;
+  color: $color-text-secondary;
+  white-space: nowrap;
+}
+
+.filterTags {
+  display: flex;
+  gap: $spacing-sm;
+  padding: 0 $page-padding;
+}
+
+.filterTag {
+  display: flex;
+  align-items: center;
+  gap: 6rpx;
+  padding: 8rpx 16rpx;
+  background-color: $color-bg-page;
+  border-radius: $radius-round;
+  border: 1rpx solid transparent;
+  transition: all $transition-base;
+
+  &.filterTagActive {
+    background-color: rgba(255, 125, 74, 0.1);
+    border-color: $color-primary;
+
+    .filterTagText {
+      color: $color-primary;
+      font-weight: $font-weight-medium;
+    }
+  }
+
+  &:active {
+    transform: scale(0.95);
+  }
+}
+
+.filterTagIcon {
+  font-size: $font-size-md;
+}
+
+.filterTagText {
+  font-size: $font-size-sm;
+  color: $color-text-secondary;
+  white-space: nowrap;
+}

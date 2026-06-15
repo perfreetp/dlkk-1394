@@ -1,0 +1,120 @@
+@use '@/styles/variables.scss' as *;
+
+.card {
+  background-color: $color-bg-card;
+  border-radius: $radius-lg;
+  overflow: hidden;
+  box-shadow: $shadow-card;
+  margin-bottom: $spacing-md;
+  transition: all $transition-base;
+
+  &:active {
+    transform: scale(0.98);
+    box-shadow: $shadow-card-hover;
+  }
+}
+
+.imageWrapper {
+  position: relative;
+  width: 100%;
+  height: 280rpx;
+}
+
+.image {
+  width: 100%;
+  height: 100%;
+}
+
+.pointsBadge {
+  position: absolute;
+  top: $spacing-md;
+  left: $spacing-md;
+  background-color: rgba(0, 0, 0, 0.6);
+  padding: 8rpx 16rpx;
+  border-radius: $radius-round;
+}
+
+.pointsText {
+  font-size: $font-size-xs;
+  color: $color-text-white;
+  font-weight: $font-weight-medium;
+}
+
+.favoriteBtn {
+  position: absolute;
+  top: $spacing-md;
+  right: $spacing-md;
+  width: 64rpx;
+  height: 64rpx;
+  background-color: rgba(255, 255, 255, 0.9);
+  border-radius: $radius-round;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all $transition-base;
+
+  &:active {
+    transform: scale(0.9);
+  }
+
+  &.favorited {
+    background-color: rgba(255, 125, 74, 0.15);
+  }
+}
+
+.favoriteIcon {
+  font-size: 32rpx;
+}
+
+.content {
+  padding: $spacing-lg;
+}
+
+.title {
+  font-size: $font-size-lg;
+  font-weight: $font-weight-semibold;
+  color: $color-text-primary;
+  line-height: 1.4;
+  @include text-ellipsis;
+}
+
+.desc {
+  font-size: $font-size-sm;
+  color: $color-text-secondary;
+  line-height: 1.5;
+  margin-top: $spacing-sm;
+  @include text-ellipsis-multi(2);
+}
+
+.statsRow {
+  display: flex;
+  align-items: center;
+  gap: $spacing-xl;
+  margin-top: $spacing-md;
+}
+
+.statItem {
+  display: flex;
+  align-items: center;
+  gap: 6rpx;
+}
+
+.statIcon {
+  font-size: $font-size-md;
+}
+
+.statText {
+  font-size: $font-size-sm;
+  color: $color-text-secondary;
+}
+
+.dateRow {
+  margin-top: $spacing-md;
+  padding-top: $spacing-md;
+  border-top: 1rpx solid $color-divider;
+}
+
+.dateText {
+  font-size: $font-size-xs;
+  color: $color-text-tertiary;
+}
